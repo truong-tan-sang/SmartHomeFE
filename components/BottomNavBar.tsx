@@ -1,45 +1,55 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity} from "react-native";
-import { IconButton , Text } from "react-native-paper";
+import { View, StyleSheet } from "react-native";
+import { IconButton, Text } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
+
+const NAV_ITEMS = [
+    { route: "SmartHome", icon: "home", label: "Trang chủ" },
+    { route: "ElecControl", icon: "lightning-bolt", label: "Điều khiển" },
+    { route: "Schedule", icon: "calendar-clock", label: "Đặt lịch" },
+    { route: "Profile", icon: "account", label: "Hồ sơ" }
+];
 
 type NavBarProps = {
     activeRoute?: string;
 };
 
-const BottomNavBar = ({ activeRoute }: NavBarProps) => {
+type NavItemProps = {
+    route: string;
+    icon: string;
+    label: string;
+    activeRoute?: string;
+};
+
+const NavItem = ({ route, icon, label, activeRoute }: NavItemProps) => {
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const isActive = activeRoute === route;
+    return (
+        <View style={styles.navItem}>
+            <IconButton
+                style={styles.button}
+                // Mở rộng vùng nhấn bằng hitSlop
+                hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+                icon={isActive ? icon : `${icon}-outline`}
+                mode={isActive ? "contained" : undefined}
+                size={32}
+                containerColor={isActive ? "#dac297" : "transparent"}
+                iconColor="#faf7f2"
+                onPress={() => navigation.navigate(route as any)}
+            />
+            <Text style={styles.label}>{label}</Text>
+        </View>
+    );
+};
+
+const BottomNavBar = ({ activeRoute }: NavBarProps) => {
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.navigate("SmartHome")}>
-                <View style={styles.navItem}>
-                    <IconButton
-                        style={styles.button}
-                        icon={activeRoute === "SmartHome" ? "home" : "home-outline"}
-                        mode={activeRoute === "SmartHome" ? "contained" : undefined}
-                        size={32}
-                        containerColor={activeRoute === "SmartHome" ? "#dac297" : "transparent"}
-                        iconColor='#faf7f2'
-                    />
-                    <Text style={styles.label}>Trang chủ</Text>
-                </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-                <View style={styles.navItem}>
-                    <IconButton
-                        style={styles.button}
-                        icon={activeRoute === "Profile" ? "account" : "account-outline"}
-                        mode={activeRoute === "Profile" ? "contained" : undefined}
-                        size={32}
-                        containerColor={activeRoute === "Profile" ? "#dac297" : "transparent"}
-                        iconColor='#faf7f2'
-                    />
-                    <Text style={styles.label}>Hồ sơ</Text>
-                </View>
-            </TouchableOpacity>
+            {NAV_ITEMS.map((item) => (
+                <NavItem key={item.route} {...item} activeRoute={activeRoute} />
+            ))}
         </View>
     );
 };
@@ -47,6 +57,7 @@ const BottomNavBar = ({ activeRoute }: NavBarProps) => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: "row",
+        // Chia đều 4 mục theo chiều ngang
         justifyContent: "space-around",
         alignItems: "center",
         backgroundColor: "#caa26a",
@@ -56,6 +67,7 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     navItem: {
+        flex: 1, // Mỗi mục chiếm 1/4 của thanh nav
         alignItems: "center",
     },
     button: {

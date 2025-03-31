@@ -15,11 +15,21 @@ export default function HomeScreen() {
     const animation = useRef(new Animated.Value(0)).current;
     const textOpacity = useRef(new Animated.Value(1)).current;
 
-    // Animation config
     const buttonSize = animation.interpolate({
         inputRange: [0, 1],
         outputRange: [200, Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2]
     });
+    
+    const translateX = buttonSize.interpolate({
+        inputRange: [200, Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2],
+        outputRange: [0, -(Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2 - 200) / 2]
+    });
+    
+    const translateY = buttonSize.interpolate({
+        inputRange: [200, Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2],
+        outputRange: [0, -(Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2 - 200) / 2]
+    });
+    
 
     const borderRadius = animation.interpolate({
         inputRange: [0, 1],
@@ -68,7 +78,9 @@ export default function HomeScreen() {
                         width: buttonSize,
                         height: buttonSize,
                         borderRadius: borderRadius,
-                        backgroundColor: showIntro ? '#caa26a' : '#caa26a'
+                        backgroundColor: showIntro ? '#caa26a' : '#caa26a',
+                        transform: [{ translateX }, { translateY }]
+
                     }
                 ]}
             >
@@ -127,8 +139,10 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         position: 'absolute',
-        alignSelf: 'center',
+        top: SCREEN_HEIGHT / 2 - 120, // Đặt ở giữa màn hình theo chiều dọc
+        left: SCREEN_WIDTH / 2 - 80, // Đặt ở giữa màn hình theo chiều ngang
         justifyContent: 'center',
+        alignItems: 'center',
         overflow: 'hidden'
     },
     fullSize: {

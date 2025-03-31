@@ -1,191 +1,228 @@
 import React, { useState } from "react";
-import { StyleSheet, TouchableOpacity, View, Dimensions, TouchableNativeFeedback  } from "react-native";
-import { Text, TextInput, Button, IconButton } from "react-native-paper";
+import { StyleSheet, TouchableOpacity, View, ScrollView, Animated } from "react-native";
+import { Text, IconButton, FAB } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import { BarChart } from "react-native-chart-kit";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import * as Components from "../components";
 import { useTheme } from 'react-native-paper';
 
-const screenWidth = Dimensions.get("window").width;
-const barWidth = (screenWidth - 80) / 10; // 10 cột với padding 40 mỗi bên
-const barRadius = 20; // Bo góc bằng 1/2 chiều rộng
+type SmartHomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SmartHome'>;
 
-type SmartHomeScreenScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SmartHome'>
-
+interface House {
+    id: string;
+    name: string;
+    rooms: string[];
+    expanded: boolean;
+    animation: Animated.Value;
+}
 
 export default function SmartHomeScreen() {
-    const { colors } = useTheme();
+    const navigation = useNavigation<SmartHomeScreenNavigationProp>();
+    const theme = useTheme();
+    const [houses, setHouses] = useState<House[]>([
+        {
+            id: "1",
+            name: "Main House",
+            rooms: ["Bedroom", "Kitchen", "Living Room"],
+            expanded: true,
+            animation: new Animated.Value(1)
+        },
+    ]);
 
-    const navigation = useNavigation<SmartHomeScreenScreenNavigationProp>();
+    const toggleHouse = (houseId: string) => {
+        setHouses(prevHouses => 
+            prevHouses.map(house => {
+                if (house.id === houseId) {
+                    const targetValue = house.expanded ? 0 : 1;
+                    
+                    Animated.timing(house.animation, {
+                        toValue: targetValue,
+                        duration: 150,
+                        useNativeDriver: false
+                    }).start();
 
-    // Thêm type cho các thiết bị
-    type DeviceType = "fan" | "light" | "curtain" | "ac";
-    const [devices, setDevices] = useState({
-        fan: false,
-        light: false,
-        curtain: false,
-        ac: false,
-    });
-
-    const toggleDevice = (device: DeviceType) => {
-        setDevices(prev => ({ ...prev, [device]: !prev[device] }));
+                    return { 
+                        ...house, 
+                        expanded: !house.expanded 
+                    };
+                }
+                return house;
+            })
+        );
     };
 
-    // Component button điều khiển
-    const DeviceButton = ({
-        icon,
-        label,
-        isActive,
-        onPress,
-    }: {
-        icon: string;
-        label: string;
-        isActive: boolean;
-        onPress: () => void;
-    }) => (
-<TouchableNativeFeedback
-    onPress={onPress} // Bỏ style ở đây vì không có tác dụng
->
-    <View style={[styles.deviceButton, isActive && styles.activeDevice]}>
-        <IconButton
-            icon={icon}
-            size={32}
-            iconColor={isActive ? "#fff" : "#caa26a"}
-        />
-        <Text style={{ 
-            color: "#fff", // Màu luôn trắng theo code của bạn
-            marginTop: 2,
-            fontWeight: "regular", 
-            fontSize: 15 
-        }}>
-            {label}
-        </Text>
-    </View>
-</TouchableNativeFeedback>
 
-    );
-    
+    const addNewHouse = () => {
+        const newHouse: House = {
+            id: Date.now().toString(),
+            name: `House ${houses.length + 1}`,
+            rooms: [],
+            expanded: true,
+            animation: new Animated.Value(0)
+        };
+        setHouses(prev => [...prev, newHouse]);
+    };
 
-    // const data = {
-    //     labels: ["January", "February", "March", "April", "May", "June"],
-    //     datasets: [
-    //         {
-    //             data: [20, 45, 28, 80, 99, 43]
-    //         }
-    //     ]
-    // };
+    const addNewRoom = (houseId: string) => {
+        setHouses(prevHouses =>
+            prevHouses.map(house => {
+                if (house.id === houseId) {
+                    const newRoom = `New Room ${house.rooms.length + 1}`;
+                    return { ...house, rooms: [...house.rooms, newRoom] };
+                }
+                return house;
+            })
+        );
+    };
+
+    const handleRoomPress = (houseId: string, room: string) => {
+        navigation.navigate("ElecControl", { houseId, roomName: room });
+    };
+
+    const renderHouse = (house: House) => {
+        const heightInterpolation = house.animation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 200] // Thay 200 bằng chiều cao thực tế của content
+        });
+
+        const rotateInterpolation = house.animation.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['-90deg', '0deg']
+        });
+
+        return (
+            <View
+                key={house.id}
+                style={[styles.houseContainer, { 
+                    backgroundColor: theme.colors.surface,
+                    borderWidth: 2,
+                    borderColor: theme.colors.primary 
+                }]}
+            >
+                <TouchableOpacity
+                    style={styles.houseHeader}
+                    onPress={() => toggleHouse(house.id)}
+                >
+                    <Animated.View style={{ transform: [{ rotate: rotateInterpolation }]}}>
+                        <IconButton
+                            icon="chevron-down"
+                            size={24}
+                            iconColor={theme.colors.onSurface}
+                        />
+                    </Animated.View>
+
+                    <Text style={[styles.houseName, { color: theme.colors.onSurface }]}>
+                        {house.name}
+                    </Text>
+
+                    <IconButton
+                        icon="plus"
+                        size={20}
+                        iconColor={theme.colors.primary}
+                        onPress={() => addNewRoom(house.id)}
+                    />
+                </TouchableOpacity>
+
+                <Animated.View 
+                    style={[
+                        styles.roomList, 
+                        { 
+                            height: heightInterpolation,
+                            opacity: house.animation,
+                            overflow: 'hidden'
+                        }
+                    ]}
+                >
+                    {house.rooms.map((room, index) => (
+                        <TouchableOpacity
+                            key={`${house.id}-${index}`}
+                            style={[styles.roomButton, { 
+                                backgroundColor: theme.colors.background, 
+                                borderTopColor: theme.colors.primary, 
+                                borderTopWidth: 1 
+                            }]}
+                            onPress={() => handleRoomPress(house.id, room)}
+                        >
+                            <Text style={[styles.roomText, { color: theme.colors.onSurface }]}>
+                                {room}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </Animated.View>
+            </View>
+        );
+    };
+
     return (
-        <View style={{flex: 1}}>
-            <Components.BackButton />
-            <View style={{ margin: 50 }}>
-                <IconButton
-                    icon="account"
-                    size={32}
-                    onPress={() => navigation.navigate("Profile")}
-                    style={styles.profileicon}
-                    iconColor="#fff"
-                />
-            </View>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={[styles.title, { color: theme.colors.primary }]}>
+                    Welcome Kat Grem!
+                </Text>
 
-            {/* <BarChart
-                data={{
-                    labels: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-                    datasets: [{ data: [4, 6, 5, 7, 8, 3, 6] }],
-                }}
-                width={screenWidth - 40}
-                height={220}
-                yAxisLabel=""
-                yAxisSuffix="h"
-                chartConfig={{
-                    backgroundColor: "#caa26a",
-                    backgroundGradientFrom: "#caa26a",
-                    backgroundGradientTo: "#caa26a",
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    barPercentage: 0.5,
-                }}
-                style={{
-                    marginVertical: 10,
-                    borderRadius: 10,
-                    alignSelf: "center",
-                }}
-            /> */}
+                {houses.map(renderHouse)}
+            </ScrollView>
 
-            <Components.BarChart/>
+            <FAB
+                style={[styles.fab, { backgroundColor: theme.colors.secondary }]}
+                icon="home-plus"
+                onPress={addNewHouse}
+                color={theme.colors.onSecondary}
+            />
 
-
-            {/* Grid điều khiển 2x2 */}
-            <View style={styles.gridContainer}>
-                <DeviceButton
-                    icon="google-circles-extended"
-                    label="Quạt"
-                    isActive={devices.fan}
-                    onPress={() => toggleDevice("fan")}
-                />
-                <DeviceButton
-                    icon="lightbulb-outline"
-                    label="Đèn"
-                    isActive={devices.light}
-                    onPress={() => toggleDevice("light")}
-                />
-                <DeviceButton
-                    icon="blinds"
-                    label="Rèm"
-                    isActive={devices.curtain}
-                    onPress={() => toggleDevice("curtain")}
-                />
-                <DeviceButton
-                    icon="air-conditioner"
-                    label="Điều hòa"
-                    isActive={devices.ac}
-                    onPress={() => toggleDevice("ac")}
-                />
-            </View>
             <Components.BottomNavBar activeRoute="SmartHome" />
-
         </View>
-
     );
-}
-export const styles = StyleSheet.create({
-    profileicon: {
-        backgroundColor: "#caa26a",
-        borderRadius: 12,
-    },
+};
+
+
+const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        paddingBottom: 60, // Để tránh bị navigation bar đè lên
-    },
-    content: {
         padding: 20,
-        paddingBottom: 40,
+        paddingBottom: 80,
     },
-    gridContainer: {
-        flexDirection: "row",
-        // padding: 20,
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        marginTop: 20,
-        marginHorizontal: 63,
-
+    title: {
+        marginTop: 60,
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 30,
+        textAlign: "center",
     },
-    deviceButton: {
-        width: 120,
-        height: 120,
-        alignItems: "center",
-        padding: 16,
-        marginVertical: 8,
+    houseContainer: {
         borderRadius: 12,
-        borderWidth: 1,
-        // borderColor: "#1B1A18",
-        backgroundColor: "#1B1A18",
+        marginBottom: 15,
+        overflow: "hidden",
+        // elevation: 2,
     },
-    activeDevice: {
-        // backgroundColor: "#caa26a",
-        // borderColor: "#caa26a",
+    houseHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 10,
     },
-
+    houseName: {
+        flex: 1,
+        fontSize: 18,
+        fontWeight: "600",
+        marginLeft: 8,
+    },
+    roomList: {
+        padding: 10,
+    },
+    roomButton: {
+        padding: 16,
+        borderRadius: 8,
+        marginVertical: 4,
+        marginHorizontal: 8,
+    },
+    roomText: {
+        fontSize: 16,
+    },
+    fab: {
+        position: "absolute",
+        margin: 16,
+        right: 0,
+        bottom: 60,
+        zIndex: 1,
+    },
 });

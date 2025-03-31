@@ -33,7 +33,7 @@ const CustomBarChart = () => {
                 yAxisSuffix="" // Thêm vào đây
                 chartConfig={{
                     backgroundGradientFrom: "#f2f2f2",
-                    backgroundGradientTo: "#f2f2f",
+                    backgroundGradientTo: "#f2f2f2",
                     decimalPlaces: 0,
                     barPercentage: 0.8,                
                     // propsForBars :{
@@ -65,6 +65,16 @@ const styles = StyleSheet.create({
     //     backgroundColor: "rgba(255, 65, 65, 0.89)",
     //     // Điều chỉnh padding nếu cần
     //     paddingLeft: 0,
+
+
+
+
+
+
+
+
+
+    
     // },
     chart: {
         // padding:16,
