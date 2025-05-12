@@ -13,7 +13,6 @@ type ScheduleScreenScreenNavigationProp = StackNavigationProp<RootStackParamList
 export default function ScheduleScreen() {
     return(
         <View style={{flex:1}}>
-            <Components.BottomNavBar activeRoute="Schedule" />
         </View>
     )
 }

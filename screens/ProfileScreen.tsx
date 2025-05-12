@@ -1,28 +1,29 @@
+// ProfileScreen.tsx
 import React, { useState } from "react";
 import { StyleSheet, View, ScrollView, Alert } from "react-native";
-import { Text, Switch, List, Avatar, Button  } from "react-native-paper";
+import { Text, Switch, List, Avatar, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import type { AppStackParamList } from "../navigation/AppNavigator";
 import * as Components from "../components";
 import { useTheme } from 'react-native-paper';
-import { useAuth } from '../context/AuthContext'; // Giả sử có context xác thực
+import { useAuthStore } from "../store/authStore"; // --- CHỈ DÙNG ZUSTAND ---
 
 
-type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Profile'>;
+type ProfileScreenNavigationProp = StackNavigationProp<AppStackParamList, 'Profile'>;
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ toggleTheme, isDarkMode }) {
     const navigation = useNavigation<ProfileScreenNavigationProp>();
     const theme = useTheme();
-    const { logout, deleteAccount } = useAuth(); // Giả sử có hàm logout và deleteAccount trong auth context
-
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    // const { logout, deleteAccount } = useAuth(); // Giả sử có hàm logout và deleteAccount trong auth context
+    const logoutAction = useAuthStore((state) => state.logout);
+    // const [isDarkMode, setIsDarkMode] = useState(false);
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [twoFactorAuth, setTwoFactorAuth] = useState(false);
 
     const userData = {
-        name: "Kat Grem",
-        email: "kat.grem@example.com",
+        name: "Trương Tấn Sang",
+        email: "sangbeo245@gmail.com",
         avatarUrl: "https://example.com/avatar.jpg",
     };
 
@@ -35,14 +36,15 @@ export default function ProfileScreen() {
                     text: "Hủy",
                     style: "cancel"
                 },
-                { 
-                    text: "Đăng xuất", 
-                    onPress: () => {
-                        logout();
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Home' }]
-                        });
+                {
+                    text: "Đăng xuất",
+                    onPress: async () => {
+                        await logoutAction();
+                        // logout();
+                        // navigation.reset({
+                        //     index: 0,
+                        //     routes: [{ name: 'Home' }]
+                        // });
                     }
                 }
             ]
@@ -57,16 +59,24 @@ export default function ProfileScreen() {
                     text: "Hủy",
                     style: "cancel"
                 },
-                { 
-                    text: "Xóa tài khoản", 
+                {
+                    text: "Xóa tài khoản",
                     style: "destructive",
                     onPress: async () => {
                         try {
-                            await deleteAccount();
-                            navigation.reset({
-                                index: 0,
-                                routes: [{ name: 'Home' }]
-                            });
+                            // 1. BỎ LỆNH GỌI TỪ CONTEXT CŨ:
+                            // await deleteAccount(); 
+
+                            // 2. THAY THẾ BẰNG LỆNH GỌI API BACKEND CỦA BẠN:
+                            // await yourApiService.deleteUserOnServer(); // Ví dụ
+
+                            // 3. NẾU API THÀNH CÔNG, GỌI logoutAction CỦA ZUSTAND:
+                            await logoutAction();
+
+                            // 4. BỎ LỆNH navigation.reset:
+                            // navigation.reset(...) 
+
+
                         } catch (error) {
                             Alert.alert("Lỗi", "Xóa tài khoản thất bại");
                         }
@@ -90,7 +100,7 @@ export default function ProfileScreen() {
             <ScrollView contentContainerStyle={styles.container}>
                 {/* Phần thông tin cá nhân */}
                 <View style={styles.profileHeader}>
-                    <Avatar.Image 
+                    <Avatar.Image
                         size={100}
                         source={{ uri: userData.avatarUrl }}
                         style={styles.avatar}
@@ -101,8 +111,8 @@ export default function ProfileScreen() {
                     <Text style={{ color: theme.colors.secondary }}>
                         {userData.email}
                     </Text>
-                    <Button 
-                        mode="outlined" 
+                    <Button
+                        mode="outlined"
                         style={styles.editButton}
                         onPress={handleEditProfile}
                     >
@@ -115,18 +125,18 @@ export default function ProfileScreen() {
                     <List.Subheader style={{ color: theme.colors.primary }}>
                         Cài đặt
                     </List.Subheader>
-                    
+
                     <List.Item
                         title="Chế độ tối"
                         left={() => <List.Icon icon="weather-night" />}
                         right={() => (
                             <Switch
                                 value={isDarkMode}
-                                onValueChange={() => setIsDarkMode(!isDarkMode)}
+                                onValueChange={toggleTheme}
                             />
                         )}
                     />
-                    
+
                     <List.Item
                         title="Thông báo"
                         left={() => <List.Icon icon="bell" />}
@@ -137,14 +147,14 @@ export default function ProfileScreen() {
                             />
                         )}
                     />
-                    
+
                     <List.Item
                         title="Đổi mật khẩu"
                         left={() => <List.Icon icon="lock" />}
                         onPress={handleChangePassword}
                     />
-                    
-                    <List.Item
+
+                    {/* <List.Item
                         title="Xác thực 2 yếu tố"
                         left={() => <List.Icon icon="shield-key" />}
                         right={() => (
@@ -153,7 +163,7 @@ export default function ProfileScreen() {
                                 onValueChange={() => setTwoFactorAuth(!twoFactorAuth)}
                             />
                         )}
-                    />
+                    /> */}
                 </List.Section>
 
                 {/* Thiết bị & Bảo mật */}
@@ -161,13 +171,13 @@ export default function ProfileScreen() {
                     <List.Subheader style={{ color: theme.colors.primary }}>
                         Thiết bị
                     </List.Subheader>
-                    
+
                     <List.Item
                         title="Thiết bị đang hoạt động"
                         description="Điện thoại Xiaomi • Android 13"
                         left={() => <List.Icon icon="cellphone" />}
                     />
-                    
+
                     <List.Item
                         title="Quản lý thiết bị"
                         left={() => <List.Icon icon="devices" />}
@@ -179,62 +189,60 @@ export default function ProfileScreen() {
                     <List.Subheader style={{ color: theme.colors.primary }}>
                         Hỗ trợ
                     </List.Subheader>
-                    
+
                     <List.Item
                         title="Trung tâm trợ giúp"
                         left={() => <List.Icon icon="help-circle" />}
                     />
-                    
+
                     <List.Item
                         title="Điều khoản dịch vụ"
                         left={() => <List.Icon icon="file-document" />}
                     />
-                    
+
                     <List.Item
                         title="Chính sách bảo mật"
                         left={() => <List.Icon icon="shield-lock" />}
                     />
                 </List.Section>
 
-                {/* Đăng xuất */}                {/* Hỗ trợ */}
+                {/* Nguy hiểm */}
                 <List.Section>
-                    <List.Subheader style={{ color: theme.colors.error, fontWeight:"bold", fontSize: 16 }}>
+                    <List.Subheader style={{ color: theme.colors.error, fontWeight: "bold", fontSize: 16 }}>
                         Nguy hiểm
                     </List.Subheader>
-                    <View style={{ borderColor: theme.colors.error, borderWidth: 2, borderRadius: 8, marginBottom: 16, padding:16 }}>
-                    <List.Item
-                title="Đăng xuất"
-                titleStyle={{ color: theme.colors.error }}
-                description="Bạn sẽ phải đăng nhập lại"
-                descriptionStyle={{ color: theme.colors.error }}
-                left={() => <List.Icon icon="logout" color={theme.colors.error} />}
-                onPress={handleLogout}
-                style={styles.destructiveButton}
-            />
-            
-            <List.Item
-                title="Xóa tài khoản"
-                titleStyle={{ color: theme.colors.error }}
-                description="Tất cả dữ liệu sẽ bị xóa vĩnh viễn"
-                descriptionStyle={{ color: theme.colors.error }}
-                left={() => <List.Icon icon="delete-forever" color={theme.colors.error} />}
-                onPress={handleDeleteAccount}
-                style={styles.destructiveButton}
-            />
+                    <View style={{ borderColor: theme.colors.error, borderWidth: 2, borderRadius: 8, marginBottom: 16, padding: 16, backgroundColor: theme.colors.highlight }}>
+                        <List.Item
+                            title="Đăng xuất"
+                            titleStyle={{ color: theme.colors.error }}
+                            description="Bạn sẽ phải đăng nhập lại"
+                            descriptionStyle={{ color: theme.colors.error }}
+                            left={() => <List.Icon icon="logout" color={theme.colors.error} />}
+                            onPress={handleLogout}
+                            style={styles.destructiveButton}
+                        />
+
+                        <List.Item
+                            title="Xóa tài khoản"
+                            titleStyle={{ color: theme.colors.error }}
+                            description="Tất cả dữ liệu sẽ bị xóa vĩnh viễn"
+                            descriptionStyle={{ color: theme.colors.error }}
+                            left={() => <List.Icon icon="delete-forever" color={theme.colors.error} />}
+                            onPress={handleDeleteAccount}
+                            style={styles.destructiveButton}
+                        />
 
                     </View>
                 </List.Section>
-                <Button 
-                    mode="contained" 
+                {/* <Button
+                    mode="contained"
                     style={styles.logoutButton}
                     labelStyle={{ color: theme.colors.onError }}
                     onPress={handleLogout}
                 >
                     Đăng xuất
-                </Button>
+                </Button> */}
             </ScrollView>
-
-            <Components.BottomNavBar activeRoute="Profile" />
         </View>
     );
 }

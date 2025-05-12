@@ -1,64 +1,40 @@
-import { createStackNavigator } from '@react-navigation/stack';
-import { TransitionSpecs } from '@react-navigation/stack';
-import { Easing } from 'react-native';
-import HomeScreen from '../screens/HomeScreen';
-import LoginScreen from '../screens/LoginScreen';
-import SignupScreen from '../screens/SignupScreen';
-import SmartHomeScreen from '../screens/SmartHomeScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import ElecControlScreen from '../screens/ElecControl';
-import ScheduleScreen from '../screens/Schedule';
-import EditProfileScreen from '../screens/EditProfile';
+// navigation/RootNavigator.tsx
+import React from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native'; 
+import { useTheme } from 'react-native-paper';
+import AuthNavigator from './AuthNavigator';
+import AppNavigator from './AppNavigator';
+import { useAuthStore } from '../store/authStore';
 
-export type RootStackParamList = {
-    Home: undefined;
-    Intro: undefined;
-    Login: undefined;
-    Signup: undefined;
-    SmartHome: undefined;
-    Profile: undefined;
-    ElecControl: undefined;
-    Schedule: undefined;
-    EditProfile: undefined;
-};
+interface RootNavigatorProps {
+    toggleTheme: () => void;
+    isDarkMode: boolean;
+}
 
-const Stack = createStackNavigator<RootStackParamList>();
+export default function RootNavigator({ toggleTheme, isDarkMode }: RootNavigatorProps) {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const isLoading = useAuthStore((state) => state.isLoading);
+    const theme = useTheme();
 
-// Cấu hình transition spec với thời gian và easing tùy chỉnh
-const customTransitionSpec = {
-    animation: 'timing' as const,
-    config: {
-        duration: 100, // thời gian chuyển cảnh: 300ms
-        easing: Easing.bezier(0.42, 0, 0.58, 1), // easing phổ biến (ease-in-out)
-    },
-};
-
-export default function RootNavigator() {
-    return (
-        <Stack.Navigator
-            initialRouteName="SmartHome"
-            screenOptions={{
-                headerShown: false,
-                // Hiệu ứng fade: màn hình mới sẽ dần xuất hiện khi chuyển trang
-                cardStyleInterpolator: ({ current: { progress } }) => ({
-                    cardStyle: {
-                        opacity: progress,
-                    },
-                }),
-                transitionSpec: {
-                    open: customTransitionSpec,
-                    close: customTransitionSpec,
-                },
-            }}
-        >
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Signup" component={SignupScreen} />
-            <Stack.Screen name="SmartHome" component={SmartHomeScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="ElecControl" component={ElecControlScreen} />
-            <Stack.Screen name="Schedule" component={ScheduleScreen} />
-            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-        </Stack.Navigator>
+    if (isLoading) {
+        return (
+            <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+            </View>
+        );
+    }
+    
+    return isLoggedIn ? (
+        <AppNavigator toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+    ) : (
+        <AuthNavigator />
     );
 }
+
+const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});

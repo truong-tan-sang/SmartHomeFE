@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View, Dimensions, TouchableNativeFeedback
 import { Text, TextInput, Button, IconButton } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import type { RootStackParamList } from "../navigation/AppNavigator";
 import * as Components from "../components";
 import { useTheme } from 'react-native-paper';
 
@@ -62,16 +62,6 @@ export default function ElecControlScreen() {
     );
     return (
         <View style={{ flex: 1 }}>
-            {/* <Components.BackButton />
-            <View style={{ margin: 50 }}>
-                <IconButton
-                    icon="account"
-                    size={32}
-                    onPress={() => navigation.navigate("Profile")}
-                    style={styles.profileicon}
-                    iconColor="#fff"
-                />
-            </View> */}
             <Components.BarChart />
 
             {/* Grid điều khiển 2x2 */}
@@ -101,7 +91,6 @@ export default function ElecControlScreen() {
                     onPress={() => toggleDevice("ac")}
                 />
             </View>
-            <Components.BottomNavBar activeRoute="ElecControl" />
         </View>
     );
     

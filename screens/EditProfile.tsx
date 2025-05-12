@@ -1,14 +1,16 @@
+//EditProfile.tsx
+
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import { Text, TextInput, Button, Avatar, ActivityIndicator } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import type { AppStackParamList } from "../navigation/AppNavigator";
 import { useTheme } from 'react-native-paper';
 import { getUserProfile, updateUserProfile } from "../services/userService";
 import * as Components from "../components";
 
-type EditProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'EditProfile'>;
+type EditProfileScreenNavigationProp = StackNavigationProp<AppStackParamList, 'EditProfile'>;
 
 export default function EditProfileScreen() {
     const navigation = useNavigation<EditProfileScreenNavigationProp>();
@@ -54,7 +56,7 @@ export default function EditProfileScreen() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
+    const handleChangeAvatar = () => {}
     // Xử lý lưu thay đổi
     const handleSave = async () => {
         if (validateForm()) {
@@ -73,7 +75,7 @@ export default function EditProfileScreen() {
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
+            <View style={  styles.loadingContainer}>
                 <ActivityIndicator size="large" />
             </View>
         );
@@ -97,7 +99,7 @@ export default function EditProfileScreen() {
                     <Button
                         mode="text"
                         icon="camera"
-                        onPress={() => console.log('Thay đổi avatar')}
+                        onPress={() => { console.log('Thay đổi avatar'); handleChangeAvatar(); }}
                     >
                         Thay đổi ảnh
                     </Button>

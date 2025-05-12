@@ -25,15 +25,11 @@ export default function SignUpScreen() {
         <View style={styles.container}>
             {/* Nút quay lại */}
             <Components.BackButton />
-
             <Text variant="headlineMedium" style={styles.title}>Đăng ký</Text>
-
             <TextInput label="Họ và tên" mode="outlined" value={name} onChangeText={setName} style={styles.input} />
             <TextInput label="Email" mode="outlined" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
             <TextInput label="Mật khẩu" mode="outlined" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
-
             <Button mode="contained" onPress={handleRegister} style={styles.button}>Đăng ký</Button>
-
             <View style={styles.row}>
                 <Text>Bạn đã có tài khoản? </Text>
                 <Button mode="text" onPress={() => navigation.navigate("Login")}>Đăng nhập</Button>
@@ -61,7 +57,7 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 10,
-    },    
+    },
     buttonText: {
         fontSize: 18, // Tăng kích thước chữ nút
         fontWeight: "bold", // Chữ đậm hơn
