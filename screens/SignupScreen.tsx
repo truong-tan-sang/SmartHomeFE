@@ -4,7 +4,6 @@ import { Text, TextInput, Button, IconButton } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
-import * as Components from "../components";
 
 
 type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;

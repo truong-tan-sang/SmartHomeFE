@@ -5,7 +5,6 @@ import { Text, TextInput, Button, ActivityIndicator, useTheme } from "react-nati
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import { AuthStackParamList } from '../navigation/AuthNavigator';
-import * as Components from "../components"; // Giả sử bạn có BackButton trong này
 import { useAuthStore } from "../store/authStore";
 
 type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
