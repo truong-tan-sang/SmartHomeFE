@@ -4,7 +4,7 @@ import { StyleSheet, View, ScrollView, Alert } from "react-native";
 import { Text, Switch, List, Avatar, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { AppStackParamList } from "../navigation/AppNavigator";
+// import type { AppStackParamList } from "../navigation/AppNavigator";
 import * as Components from "../components";
 import { useTheme } from 'react-native-paper';
 import { useAuthStore } from "../store/authStore"; // --- CHỈ DÙNG ZUSTAND ---
@@ -219,7 +219,6 @@ export default function ProfileScreen({ toggleTheme, isDarkMode }) {
                             descriptionStyle={{ color: theme.colors.error }}
                             left={() => <List.Icon icon="logout" color={theme.colors.error} />}
                             onPress={handleLogout}
-                            style={styles.destructiveButton}
                         />
 
                         <List.Item
@@ -229,7 +228,6 @@ export default function ProfileScreen({ toggleTheme, isDarkMode }) {
                             descriptionStyle={{ color: theme.colors.error }}
                             left={() => <List.Icon icon="delete-forever" color={theme.colors.error} />}
                             onPress={handleDeleteAccount}
-                            style={styles.destructiveButton}
                         />
 
                     </View>

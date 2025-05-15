@@ -1,110 +1,88 @@
-//App.tsx
-
-import React, { useState, useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+// App.tsx
+import React, { useState, useEffect, useMemo } from 'react';
+import { useColorScheme, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import RootNavigator from './navigation/RootNavigator';
-import { 
-  PaperProvider, 
-  MD3DarkTheme, 
-  MD3LightTheme, 
-  configureFonts,
-  adaptNavigationTheme
-} from 'react-native-paper';
+import { PaperProvider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppLightTheme, AppDarkTheme } from './styles/theme';
 
-// Tạo theme tùy chỉnh cho cả light và dark mode
-const lightColors = {
-  primary: "#caa26a",
-  primaryVariant: "#dac296",
-  onPrimary: "#ffffff",
-  secondary: "#496783",
-  onSecondary: "#ffffff",
-  background: "#ffffff",
-  surface: "#f5f5f5",
-  onSurface: "#1e1e1e",
-  text: "#1e1e1e",
-  error: "#aa0000",
-  outline: '#79747E', // Màu viền mặc định của MD3 light, có thể giữ hoặc đổi
-  onSurfaceVariant: '#49454F', // Màu label/placeholder mặc định của MD3 light, có thể giữ hoặc đổi
-  // placeholder: '#757575', // key này ít dùng hơn trong MD3, onSurfaceVariant quan trọng hơn
-
-};
-
-const darkColors = {
-  primary: "#caa26a",
-  onPrimary: "#ffecd1",
-  secondary: "#6b8ba4",
-  onSecondary: "#0d1a26",
-  background: "#121212",
-  surface: "#1e1e1e",
-  text: "#fcfcfc",
-  onSurface: "#fcfcfc",
-  error: "#cc1111",
-  outline: '#948F99', // Màu xám nhạt cho đường viền TextInput khi unfocused (có thể điều chỉnh)
-  onSurfaceVariant: '#CAC4CF',
-  placeholder: '#BDBDBD', // Có thể bỏ key này nếu dùng onSurfaceVariant
-  highlight:"#322222"
-
-};
+const THEME_STORAGE_KEY = '@app_theme_preference';
 
 export default function App() {
-  const systemColorScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === 'dark');
-  const [isThemeLoaded, setIsThemeLoaded] = useState(false);
+    const systemColorScheme = useColorScheme();
+    // Khởi tạo isDarkMode dựa trên system scheme trước, sau đó sẽ load từ storage
+    const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === 'dark');
+    const [isThemeLoaded, setIsThemeLoaded] = useState(false);
 
-  // Load theme từ AsyncStorage khi khởi động
-  useEffect(() => {
-    const loadTheme = async () => {
-      try {
-        const savedTheme = await AsyncStorage.getItem('theme');
-        if (savedTheme) {
-          setIsDarkMode(savedTheme === 'dark');
+    useEffect(() => {
+        const loadThemePreference = async () => {
+            try {
+                const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+                if (savedTheme !== null) {
+                    setIsDarkMode(savedTheme === 'dark');
+                } else {
+                    // Nếu không có lưu trữ, dùng system default
+                    setIsDarkMode(systemColorScheme === 'dark');
+                }
+            } catch (error) {
+                console.error('App.tsx: Error loading theme preference from AsyncStorage:', error);
+                // Trong trường hợp lỗi, vẫn dùng system default
+                setIsDarkMode(systemColorScheme === 'dark');
+            } finally {
+                setIsThemeLoaded(true);
+            }
+        };
+        loadThemePreference();
+    }, [systemColorScheme]); // Re-check if system theme changes, though AsyncStorage takes precedence
+
+    const toggleTheme = async () => {
+        const newThemeIsDark = !isDarkMode;
+        setIsDarkMode(newThemeIsDark);
+        try {
+            await AsyncStorage.setItem(THEME_STORAGE_KEY, newThemeIsDark ? 'dark' : 'light');
+            console.log('App.tsx: Theme preference saved:', newThemeIsDark ? 'dark' : 'light');
+        } catch (error) {
+            console.error('App.tsx: Error saving theme preference to AsyncStorage:', error);
         }
-      } catch (error) {
-        console.error('Error loading theme:', error);
-      } finally {
-        setIsThemeLoaded(true);
-      }
     };
-    
-    loadTheme();
-  }, []);
 
-  // Lưu theme khi thay đổi
-  const toggleTheme = async () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    try {
-      await AsyncStorage.setItem('theme', newTheme ? 'dark' : 'light');
-    } catch (error) {
-      console.error('Error saving theme:', error);
+    // Sử dụng useMemo để theme chỉ được tính toán lại khi isDarkMode thay đổi
+    const activeTheme = useMemo(() => {
+        console.log("App.tsx: Active theme is now:", isDarkMode ? "Dark" : "Light");
+        return isDarkMode ? AppDarkTheme : AppLightTheme;
+    }, [isDarkMode]);
+
+    if (!isThemeLoaded) {
+        // Hiển thị màn hình loading đơn giản trong khi theme đang được tải
+        return (
+            <View style={appStyles.loadingContainer}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
     }
-  };
 
-  // Tạo theme động
-  const theme = {
-    ...(isDarkMode ? MD3DarkTheme : MD3LightTheme),
-    colors: {
-      ...(isDarkMode ? darkColors : lightColors),
-    },
-    fonts: configureFonts({ config: { fontFamily: 'Roboto-Regular' } }),
-    // Thêm các thuộc tính tùy chỉnh khác nếu cần
-    // roundness: 8,
-    // animation: {
-    //   scale: 1.0,
-    // },
-  };
-
-  if (!isThemeLoaded) {
-    return null; // Hoặc hiển thị loading screen
-  }
-
-  return (
-    <PaperProvider theme={theme}>
-      <NavigationContainer theme={theme}>
-        <RootNavigator toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
-      </NavigationContainer>
-    </PaperProvider>
-  );
+    return (
+        <PaperProvider theme={activeTheme}>
+            {/* Nếu bạn muốn theme của NavigationContainer đồng bộ với PaperProvider,
+              bạn cần tạo Navigation themes dựa trên AppLightTheme/AppDarkTheme
+              và truyền vào thuộc tính `theme` của NavigationContainer.
+              Ví dụ: theme={isDarkMode ? NavigationDarkTheme : NavigationLightTheme}
+              Xem ví dụ trong file styles/theme.ts (đã comment lại)
+            */}
+            <NavigationContainer>
+                <RootNavigator toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+            </NavigationContainer>
+        </PaperProvider>
+    );
 }
+
+// Styles cho màn hình loading (không phụ thuộc vào theme)
+const appStyles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF', // Màu nền mặc định cho loading
+    },
+});

@@ -121,7 +121,7 @@ export default function AppNavigator({ toggleTheme, isDarkMode }: AppNavigatorPr
         >
             {/* HomeTab, ElecControlTab, ScheduleTab giữ nguyên */}
             <Tab.Screen name="HomeTab" component={SmartHomeScreen} options={{ tabBarLabel: 'Trang chủ', tabBarIcon: ({ focused }) => <TabBarIconWrapper focused={focused} name="home" /> }} />
-            <Tab.Screen name="ElecControlTab" component={ElecControlScreen} options={{ tabBarLabel: 'Điều khiển', tabBarIcon: ({ focused }) => <TabBarIconWrapper focused={focused} name="lightning-bolt" /> }} />
+            {/* <Tab.Screen name="ElecControlTab" component={ElecControlScreen} options={{ tabBarLabel: 'Điều khiển', tabBarIcon: ({ focused }) => <TabBarIconWrapper focused={focused} name="lightning-bolt" /> }} /> */}
             <Tab.Screen name="ScheduleTab" component={ScheduleScreen} options={{ tabBarLabel: 'Lịch trình', tabBarIcon: ({ focused }) => <TabBarIconWrapper focused={focused} name="calendar-clock" /> }} />
             <Tab.Screen name="ProfileTab" options={{ tabBarLabel: 'Hồ sơ', tabBarIcon: ({ focused }) => <TabBarIconWrapper focused={focused} name="account" /> }} >
                 {/* Dùng Render Prop để truyền props trực tiếp vào ProfileScreen */}

@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View, Dimensions, TouchableNativeFeedback
 import { Text, TextInput, Button, IconButton } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../navigation/AppNavigator";
+import type RootStackParamList from "../navigation/AppNavigator";
 import * as Components from "../components";
 import { useTheme } from 'react-native-paper';
 

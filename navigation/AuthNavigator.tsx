@@ -1,15 +1,14 @@
 // navigation/AuthNavigator.tsx
-import React, { useState, useEffect } from 'react'; // <<< THÊM useState, useEffect
-// Sử dụng lại createStackNavigator từ @react-navigation/stack giống RootNavigator cũ
+import React, { useState, useEffect } from 'react';                         // Sử dụng lại createStackNavigator từ @react-navigation/stack giống RootNavigator cũ
 import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // <<< THÊM AsyncStorage
-import { View, ActivityIndicator, StyleSheet } from 'react-native'; // <<< THÊM View, ActivityIndicator, StyleSheetz
-import { useTheme } from 'react-native-paper'; // <<< THÊM useTheme (tùy chọn)
+import AsyncStorage from '@react-native-async-storage/async-storage';       // <<< THÊM AsyncStorage
+import { View, ActivityIndicator, StyleSheet } from 'react-native';         // <<< THÊM View, ActivityIndicator, StyleSheetz
+import { useTheme } from 'react-native-paper';                              // <<< THÊM useTheme (tùy chọn)
 
 // Import các màn hình xác thực của bạn
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
-import IntroScreen from '../screens/IntroScreen'; // Bỏ comment nếu bạn có màn hình Intro và muốn thêm vào luồng này
+import IntroScreen from '../screens/IntroScreen';
 
 // --- Định nghĩa Param List cho Auth Stack ---
 // Quan trọng: Chỉ chứa các màn hình thuộc luồng xác thực
