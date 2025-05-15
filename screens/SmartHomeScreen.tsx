@@ -196,7 +196,7 @@ const createSmartHomeStyles = (theme: MD3Theme) => StyleSheet.create({
     deviceCard: {
         marginBottom: 20, // More space between cards
         elevation: 2, // Subtle elevation
-        backgroundColor: theme.colors.surfaceContainer, // Use a slightly different surface for cards
+        backgroundColor: theme.colors.onPrimary, // Use a slightly different surface for cards
         borderRadius: 16,
         overflow: 'hidden', 
     },

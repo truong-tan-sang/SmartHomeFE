@@ -86,8 +86,9 @@ const createProfileStyles = (theme: MD3Theme) => StyleSheet.create({
     dangerZone: {
         borderColor: theme.colors.error,
         borderWidth: 1, // Giảm độ dày border
-        borderRadius: 12, // Bo tròn hơn
+        borderRadius: 8, // Bo tròn hơn
         marginBottom: 16,
+        padding: 10,
         // backgroundColor: theme.colors.errorContainer, // Nền cho khu vực nguy hiểm
     },
     dangerItemTitle: {
@@ -348,21 +349,21 @@ export default function ProfileScreen({ toggleTheme, isDarkMode }: ProfileScreen
                         title="Trung tâm trợ giúp"
                         titleStyle={styles.listItemTitle}
                         left={() => <List.Icon icon="help-circle-outline" color={styles.listItemIcon.color} />}
-                        right={() => <List.Icon icon="open-in-new" color={styles.listItemIcon.color} />}
+                        // right={() => <List.Icon icon="open-in-new" color={styles.listItemIcon.color} />}
                         onPress={() => Alert.alert("Thông báo", "Chức năng đang phát triển.")}
                     />
                     <List.Item
                         title="Điều khoản dịch vụ"
                         titleStyle={styles.listItemTitle}
                         left={() => <List.Icon icon="file-document-outline" color={styles.listItemIcon.color} />}
-                        right={() => <List.Icon icon="open-in-new" color={styles.listItemIcon.color} />}
+                        // right={() => <List.Icon icon="open-in-new" color={styles.listItemIcon.color} />}
                         onPress={() => Alert.alert("Thông báo", "Chức năng đang phát triển.")}
                     />
                     <List.Item
                         title="Chính sách bảo mật"
                         titleStyle={styles.listItemTitle}
                         left={() => <List.Icon icon="shield-check-outline" color={styles.listItemIcon.color} />}
-                        right={() => <List.Icon icon="open-in-new" color={styles.listItemIcon.color} />}
+                        // right={() => <List.Icon icon="open-in-new" color={styles.listItemIcon.color} />}
                         onPress={() => Alert.alert("Thông báo", "Chức năng đang phát triển.")}
                     />
                 </List.Section>

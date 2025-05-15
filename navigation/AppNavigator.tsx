@@ -175,7 +175,7 @@ export default function AppNavigator({ toggleTheme, isDarkMode }: AppNavigatorPr
                     elevation: 0, 
                 },
                 tabBarIconStyle: {
-                    marginTop: 10,
+                    marginVertical: 5,
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
